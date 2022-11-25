@@ -13,7 +13,7 @@ body {
 .search {
     display: inline-block;
     margin: 8px 0;
-    min-width: 300px;
+    min-width: 180px;
     height: 25px;
 }
 
@@ -29,11 +29,62 @@ li {
     color: #0f57d8;
 }
 
+h1, h2, h3 {
+    text-align: center;
+}
+
+h1 {
+    color: #4242ed;
+    padding: 24px 0;
+}
+
+h2, h3 {
+    color: dodgerblue;
+}
+
+.github__container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
 .sub-title {
+    display: inline-block;
     font-weight: 700;
-    width: 350px;
+    width: 200px;
+    color: darkgreen;
+}
+
+.main__field {
+    padding: 8px 20px 8px;
+}
+
+.field-avatar {
+    position: relative;
+    padding: 0;
 }
 
 .avatar {
     max-height: 150px;
+    border-radius: 50%;
+    position: absolute;
+    top: -60px;
+    right: 0;
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+.repositories > li {
+    padding: 10px 0;
+    color: black;
+}
+
+.repositories > li > p {
+    color: #40577b;
+    font-style: italic;
+}
+
+.active {
+    display: none;
 }

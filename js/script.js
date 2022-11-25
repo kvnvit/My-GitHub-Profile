@@ -1,35 +1,48 @@
-const profileInformation = document.querySelector("#profile");
+const urlMainInfo = "https://api.github.com/users/kvnvit";
+const urlRepositories = "https://api.github.com/users/kvnvit/repos";
+const profileInfo = document.querySelector("#profile");
+const repositoriesInfo = document.querySelector("#repositories");
 
+if (profileInfo) {
+  loadMainInfo();
+}
 
-async function loadRepositoryInformation() {
-
-  profileInformation.innerHTML = `
-<div class="info__loading">
+async function loadMainInfo() {
+  profileInfo.innerHTML = `
+<div class="main__loading">
   <img src="../img/loading.gif" alt="Loading...">
 </div>`;
 
-  // const user = "kvnvit";
-  let url = 'https://api.github.com/users/kvnvit';
-  let response = await fetch(url, {method: "GET"});
-  let mainInfo = await response.json();
+  repositoriesInfo.innerHTML = `
+<div class="repo__loading">
+  <img src="../img/loading.gif" alt="Loading...">
+</div>`;
 
-  if (response.ok) {
-    getRepositoryInformation(mainInfo);
+  let responseMain = await fetch(urlMainInfo, {method: "GET"});
+  let mainInfo = await responseMain.json();
+
+  if (responseMain.ok) {
+    getMainInfo(mainInfo);
   } else {
-    profileInformation.innerHTML = mainInfo.message;
+    profileInfo.innerHTML = mainInfo.message;
   }
+
+  let responseRepo = await fetch(urlRepositories, {method: "GET"});
+  let repoInfo = await responseRepo.json();
+
+  if (responseRepo.ok) {
+    getRepositoriesInfo(repoInfo);
+  } else {
+    repositoriesInfo.innerHTML = repoInfo.message;
+  }
+
 }
 
-if (profileInformation) {
-  loadRepositoryInformation();
-}
-
-function getRepositoryInformation(data) {
-  console.log(data);
+function getMainInfo(data) {
   const nameUser = data.name;
   const login = data.login;
   const avatarUrl = data.avatar_url;
-  const dateCreation = new Date(data.created_at).toLocaleDateString('en-us', {
+  const dateCreation = new Date(data.created_at).toLocaleDateString("en-us", {
     year: "numeric",
     month: "short",
     day: "numeric"
@@ -40,9 +53,8 @@ function getRepositoryInformation(data) {
   const following = data.following;
   const publicRepos = data.public_repos;
 
-  // HTML Template
-  const template = `
-  <div class="main__field">
+  const templateMain = `
+  <div class="main__field first">
   <span class="sub-title">User's name: </span>
   <span>${nameUser}</span>
 </div>
@@ -50,7 +62,7 @@ function getRepositoryInformation(data) {
   <span class="sub-title">User's login: </span>
   <span>${login}</span>
 </div>
-<div class="main__field">
+<div class="main__field field-avatar">
   <img src="${avatarUrl}" alt="User's avatar" class="avatar">
 </div>
 <div class="main__field">
@@ -78,40 +90,46 @@ function getRepositoryInformation(data) {
   <span>${publicRepos}</span>
 </div>`;
 
-  profileInformation.innerHTML = template;
+  profileInfo.innerHTML = templateMain;
+}
 
-  console.log(login);
-  for (let key in data) {
-    // if (!(mainInfo[key] === 0 || mainInfo[key] === null || mainInfo[key] === "")) {
-    // console.log(key, data[key]);
-    // }
+function getRepositoriesInfo(data) {
+  repositoriesInfo.innerHTML = ``;
+  let itemRepository;
+  let itemLastCommit;
+  let dateLastCommit;
+  const listOfRepositories = document.querySelector('.repositories');
+
+  for (let i = 0; i < data.length; i++) {
+    itemRepository = document.createElement("li");
+    itemRepository.classList.add("item__repository");
+    itemLastCommit = document.createElement("p");
+    listOfRepositories.append(itemRepository);
+    itemRepository.innerHTML = `${i + 1}. ${data[i].name}`;
+
+    if (data[i].default_branch === "master" || data[i].default_branch === "main") {
+      let dateTemp = new Date(data[i].pushed_at).toLocaleDateString("en-us", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+      dateLastCommit = `Branch: ${data[i].default_branch}, last commit date: ${dateTemp}`;
+    } else {
+      dateLastCommit = `The main branch of this repository is not "main" or "master"`;
+    }
+
+    itemLastCommit.innerHTML = dateLastCommit;
   }
-}
 
-// getRepositoryInformation();
-
-async function getListRepositories() {
-  let url = 'https://api.github.com/users/kvnvit/repos';
-  let response = await fetch(url);
-  let repositories = await response.json();
-
-  for (let i = 0; i < repositories.length; i++) {
-    console.log(repositories[i].name);
+  function showDate(target) {
+    target.append(itemLastCommit);
+    itemLastCommit.classList.toggle("active");
   }
+
+  listOfRepositories.addEventListener("click", function (event) {
+    let target = event.target;
+    if (event.target.closest(".item__repository")) {
+      showDate(target);
+    }
+  });
 }
-
-// getListRepositories();
-
-async function getLastCommit() {
-  let url = 'https://api.github.com/repos/kvnvit/my_pages/commits';
-  let response = await fetch(url);
-  let commits = await response.json();
-
-  console.log("Last commit date:", new Date(commits[0].commit.author.date).toLocaleDateString('en-us', {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  }));
-}
-
-// getLastCommit();
